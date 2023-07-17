@@ -16,13 +16,38 @@ const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 // How many rounds should bcrypt run the salt (default - 10 rounds)
 const saltRounds = 10;
 
+// HEAD /api/users?email= - Check the email availability
+router.head("/users", (req, res, next) => {
+  const email = req.query.email;
+
+  if (!email) return next(new Error("?email is required"));
+
+  // si email ne "ressemble" pas a un email => 400
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!emailRegex.test(email)) {
+    res.status(400).json({ message: "Provide a valid email address." });
+    return;
+  }
+
+  User.findOne({ email })
+    .then((foundUser) => {
+      // If the user with the same email already exists, send an error response
+      if (foundUser) {
+        res.status(409).json({ message: "User already exists." });
+      } else {
+        res.status(204).send();
+      }
+    })
+    .catch((err) => console.log(err));
+});
+
 // POST /auth/signup  - Creates a new user in the database
-router.post("/signup", (req, res, next) => {
-  const { email, password, name } = req.body;
+router.post("/users", (req, res, next) => {
+  const { email, username, password } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === "") {
-    res.status(400).json({ message: "Provide email, password and name" });
+  if (email === "" || password === "" || username === "") {
+    res.status(400).json({ message: "Provide email, password and username" });
     return;
   }
 
@@ -43,30 +68,20 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
-  // Check the users collection if a user with the same email already exists
-  User.findOne({ email })
-    .then((foundUser) => {
-      // If the user with the same email already exists, send an error response
-      if (foundUser) {
-        res.status(400).json({ message: "User already exists." });
-        return;
-      }
+  // Proceed to hash the password
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const hashedPassword = bcrypt.hashSync(password, salt);
 
-      // If email is unique, proceed to hash the password
-      const salt = bcrypt.genSaltSync(saltRounds);
-      const hashedPassword = bcrypt.hashSync(password, salt);
-
-      // Create the new user in the database
-      // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name });
-    })
+  // Create the new user in the database
+  // We return a pending promise, which allows us to chain another `then`
+  return User.create({ username, email, password: hashedPassword })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, name, _id } = createdUser;
+      const { email, username, _id } = createdUser;
 
       // Create a new object that doesn't expose the password
-      const user = { email, name, _id };
+      const user = { email, username, _id };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
@@ -75,7 +90,7 @@ router.post("/signup", (req, res, next) => {
 });
 
 // POST  /auth/login - Verifies email and password and returns a JWT
-router.post("/login", (req, res, next) => {
+router.post("/sessions", (req, res, next) => {
   const { email, password } = req.body;
 
   // Check if email or password are provided as empty string
@@ -106,11 +121,11 @@ router.post("/login", (req, res, next) => {
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: "HS256",
-          expiresIn: "6h",
+          expiresIn: "100000000000h",
         });
 
-        // Send the token as the response
-        res.status(200).json({ authToken: authToken });
+        // Send a json response containing the user object
+        res.status(201).json({ authToken });
       } else {
         res.status(401).json({ message: "Unable to authenticate the user" });
       }

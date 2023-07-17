@@ -10,14 +10,16 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    username: {
+      type: String,
+      required: [true, "Username is required."],
+    },
     password: {
       type: String,
       required: [true, "Password is required."],
     },
-    name: {
-      type: String,
-      required: [true, "Name is required."],
-    },
+    profile_img: String,
+    group: { type: Schema.Types.ObjectId, ref: "Group" },
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
@@ -25,6 +27,4 @@ const userSchema = new Schema(
   }
 );
 
-const User = model("User", userSchema);
-
-module.exports = User;
+module.exports = model("User", userSchema);
