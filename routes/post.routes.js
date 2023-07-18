@@ -46,7 +46,6 @@ router.get("/posts/:postId", (req, res, next) => {
   }
 
   Post.findById(postId)
-    // .populate("User")
     .then((foundedPost) => {
       res.status(200).json(foundedPost);
     })

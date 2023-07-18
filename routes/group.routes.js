@@ -7,7 +7,7 @@ const User = require("../models/User.model");
 
 // POST /api/groups - Create a new group
 router.post("/groups", (req, res, next) => {
-  Group.create({ name: req.body.name, invitedUsers: req.bodyUsers })
+  Group.create({ name: req.body.name })
     .then((newGroup) => {
       console.log("newGroup", newGroup);
       res.status(201).json(newGroup);
@@ -27,27 +27,37 @@ router.post("/groups", (req, res, next) => {
 
 // PUT /api/groups - Add a new member in the group
 router.put("/group/:groupId", (req, res, next) => {
-  console.log("req.body", req.body); // ["a@a.com", "b@b.com", c@c.com, d@d.com]
-  // 1. filtrer req.body des emails deja presents en tant que users
-  // 2. ne ajouter un email qui s'y trouverait deja
-  const { groupId } = req.params;
+  console.log("req.body", req.body);
 
-  // älready present users: [{..}, {..}, {..}]
-  const alreadyPresentUsers = User.find({ email: { $in: req.body } })
-    .then(() => {
-      const emailsArrFiltered = req.body.filter(function (email) {
-        // chercher parmi alreadyPresentUsers si email .some()
-        return !alreadyPresentUsers.some((el) => el.email === email);
+  const { groupId } = req.params;
+  const { invitedUsers } = req.body;
+
+  // Rechercher les users déjà présents dans la base de données
+  User.find({ email: { $in: invitedUsers } })
+    .then((alreadyPresentUsers) => {
+      // Filtrer les emails, à la fin il ne doit rester que ceux non trouvés dans les objets users
+      const emailsArrFiltered = invitedUsers.filter((email) => {
+        return !alreadyPresentUsers.some((user) => user.email === email);
       });
+
+      if (emailsArrFiltered.length === 0) {
+        return res.status(200).json({ message: "No Adresses to add." });
+      } else {
+        return Group.findByIdAndUpdate(
+          groupId,
+          { invitedUsers: emailsArrFiltered },
+          { new: true }
+        );
+      }
     })
-    .then(() => {
-      Group.findByIdAndUpdate(
-        groupId,
-        { invitedUsers: emailsArrFiltered },
-        { new: true }
-      ).then((updatedGroup) => {
-        res.status(204).json(updatedGroup);
-      });
+    .then((updatedGroup) => {
+      if (!updatedGroup) {
+        return res
+          .status(404)
+          .json({ message: "The group hasn't been found." });
+      }
+
+      res.status(200).json(updatedGroup);
     })
     .catch((err) => next(err));
 });
