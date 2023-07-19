@@ -27,14 +27,20 @@ app.use("/api", authRoutes);
 const groupRoutes = require("./routes/group.routes");
 app.use("/api", isAuthenticated, groupRoutes);
 
-const postRoutes = require("./routes/post.routes");
-app.use("/api", isAuthenticated, postRoutes);
+const mediaRoutes = require("./routes/media.routes");
+app.use("/api", isAuthenticated, mediaRoutes);
 
 const eventRoutes = require("./routes/event.routes");
 app.use("/api", isAuthenticated, eventRoutes);
 
 const projectRoutes = require("./routes/project.routes");
 app.use("/api", isAuthenticated, projectRoutes);
+
+const userRoutes = require("./routes/user.routes");
+app.use("/api", isAuthenticated, userRoutes);
+
+const notificationRoutes = require("./routes/notification.routes");
+app.use("/api", isAuthenticated, notificationRoutes);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

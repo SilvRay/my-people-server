@@ -15,16 +15,6 @@ router.post("/groups", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// router.get("/groups/:groupId", (req, res, next) => {
-//   const { groupId } = req.params;
-//   User.find({ group: groupId })
-//     .populate("group")
-//     .then((users) => {
-//       res.status(200).json(users);
-//     })
-//     .catch((err) => res.json(err));
-// });
-
 // PUT /api/groups - Add a new member in the group
 router.put("/group/:groupId", (req, res, next) => {
   console.log("req.body", req.body);
@@ -61,16 +51,5 @@ router.put("/group/:groupId", (req, res, next) => {
     })
     .catch((err) => next(err));
 });
-
-//   Group.findByIdAndUpdate(
-//     groupId,
-//     { invitedUsers: emailsArrFiltered },
-//     { new: true }
-//   )
-//     .then((updatedGroup) => {
-//       res.status(204).json(updatedGroup);
-//     })
-//     .catch((err) => next(err));
-// });
 
 module.exports = router;

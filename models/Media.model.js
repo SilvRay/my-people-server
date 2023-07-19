@@ -1,9 +1,9 @@
 const { Schema, model } = require("mongoose");
 
-const postSchema = new Schema(
+const mediaSchema = new Schema(
   {
     creator: { type: Schema.Types.ObjectId, ref: "User" },
-    posts: [String],
+    medias: [String],
     legend: String,
     comments: [
       {
@@ -19,4 +19,4 @@ const postSchema = new Schema(
   }
 );
 
-module.exports = model("Post", postSchema);
+module.exports = model("Media", mediaSchema);

@@ -19,6 +19,7 @@ const userSchema = new Schema(
       required: [true, "Password is required."],
     },
     profile_img: String,
+    birthday: Date,
     group: { type: Schema.Types.ObjectId, ref: "Group" },
   },
   {
