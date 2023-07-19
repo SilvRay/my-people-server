@@ -45,6 +45,7 @@ router.head("/users", (req, res, next) => {
 // POST /auth/signup  - Creates a new user in the database
 router.post("/users", (req, res, next) => {
   const { email, username, password } = req.body;
+  const lastReadNotif = Date.now()
 
   // Check if email or password or name are provided as empty strings
   if (email === "" || password === "" || username === "") {
@@ -75,14 +76,14 @@ router.post("/users", (req, res, next) => {
 
   // Create the new user in the database
   // We return a pending promise, which allows us to chain another `then`
-  return User.create({ username, email, password: hashedPassword })
+  return User.create({ username, email, password: hashedPassword, lastReadNotif })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, username, _id } = createdUser;
+      const { email, username, _id, lastReadNotif } = createdUser;
 
       // Create a new object that doesn't expose the password
-      const user = { email, username, _id };
+      const user = { email, username, _id, lastReadNotif };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
@@ -114,10 +115,10 @@ router.post("/sessions", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundUser;
+        const { _id, email, name, lastReadNotif } = foundUser;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email, name, lastReadNotif };
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {

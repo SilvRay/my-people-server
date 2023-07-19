@@ -21,6 +21,7 @@ const userSchema = new Schema(
     profile_img: String,
     birthday: Date,
     group: { type: Schema.Types.ObjectId, ref: "Group" },
+    lastReadNotif : Date,
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

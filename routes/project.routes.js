@@ -24,7 +24,7 @@ router.get("/projects", (req, res, next) => {
   const page = req.query.page;
   const skip = (page - 1) * 10;
 
-  Project.find()
+  Project.find({endDate: { $gte: Date.now() }})
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(10)

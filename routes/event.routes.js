@@ -15,15 +15,19 @@ router.post("/events", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// GET /api/events Affichage des events de tous les utilisateurs
+// GET /api/events Affichage des events de tous les utilisateurs de ton group
 router.get("/events", (req, res, next) => {
-  Event.find()
-    .sort({ createdAt: -1 })
-    .populate("organizer")
+  User.findById(req.payload._id)
+    
+    .then((foundUser) => {
+      return Event.find({'organizer.group':foundUser.group, date: { $gte: Date.now() } })
+        .populate('organizer')
+        .sort({ createdAt: -1 })
+    })
     .then((allEvents) => {
       res.status(200).json(allEvents);
     })
-    .catch((err) => next(err));
+    .catch((err) => next(err)); // on recup le group du user connecte
 });
 
 // GET /api/events Affichage d'un event

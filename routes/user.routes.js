@@ -54,6 +54,14 @@ router.get("/user/medias", (req, res, next) => {
 });
 
 // GET /api/users Affichage des membres du groupe
-router.get("/users/", (req, res, next) => {});
+router.get("/users/", (req, res, next) => {
+  const groupId = req.payload.group
+  User.find({ group: groupId })
+  .then((usersFromGroup) => {
+    res.status(200).json(usersFromGroup);
+  })
+  .catch((err) => next(err));
 
+
+});
 module.exports = router;
