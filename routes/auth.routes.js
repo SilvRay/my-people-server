@@ -81,25 +81,36 @@ router.post("/users", (req, res, next) => {
   Group.find({ invitedUsers: { $in: email } })
     .then((groupFromDB) => {
       console.log("groupfrom DB =", groupFromDB);
-      //console.log("group Id=", groupFromDB[0].id);
-      return User.create({
-        username,
-        email,
-        //group: groupFromDB[0].id,
-        password: hashedPassword,
-        lastReadNotif,
-      });
-    })
-    .then((createdUser) => {
-      // Deconstruct the newly created user object to omit the password
-      // We should never expose passwords publicly
-      const { email, username, _id, group, lastReadNotif } = createdUser;
-      console.log("createdUser=", createdUser);
-      // Create a new object that doesn't expose the password
-      const user = { email, username, _id, group, lastReadNotif };
+      // console.log("group Id=", groupFromDB[0].id);
 
-      // Send a json response containing the user object
-      res.status(201).json({ user: user });
+      if (groupFromDB.length === 0) {
+        User.create({
+          username,
+          email,
+          password: hashedPassword,
+          lastReadNotif,
+        }).then((userCreated) => {
+          res.status(201).json(userCreated);
+        });
+      } else {
+        return User.create({
+          username,
+          email,
+          group: groupFromDB[0].id,
+          password: hashedPassword,
+          lastReadNotif,
+        }).then((createdUser) => {
+          // Deconstruct the newly created user object to omit the password
+          // We should never expose passwords publicly
+          const { email, username, _id, group, lastReadNotif } = createdUser;
+          console.log("createdUser=", createdUser);
+          // Create a new object that doesn't expose the password
+          const user = { email, username, _id, group, lastReadNotif };
+
+          // Send a json response containing the user object
+          res.status(201).json({ user: user });
+        });
+      }
     })
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
