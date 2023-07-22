@@ -7,6 +7,10 @@ const groupSchema = new Schema(
       required: [true, "A group name is required"],
     },
     invitedUsers: [String],
+    // belongsToGroup: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

@@ -5,7 +5,13 @@ const eventSchema = new Schema(
     organizer: { type: Schema.Types.ObjectId, ref: "User" },
     type: {
       type: String,
-      enum: ["Meal", "Movies", "Games", "Trip", "Talk"],
+      enum: [
+        "Let's eat good",
+        "Movie Time",
+        "Playground",
+        "Go out",
+        "Real Talk",
+      ],
     },
     place: {
       type: String,

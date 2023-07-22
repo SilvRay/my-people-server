@@ -9,8 +9,21 @@ const User = require("../models/User.model");
 router.post("/groups", (req, res, next) => {
   Group.create({ name: req.body.name })
     .then((newGroup) => {
-      console.log("newGroup", newGroup);
-      res.status(201).json(newGroup);
+      User.findByIdAndUpdate(
+        req.payload._id,
+        { group: newGroup.id },
+        { new: true }
+      ).then((userUpdated) => {
+        if (!userUpdated) {
+          return res.status(500).json({ message: "User does not exist" });
+        }
+
+        console.log("userUpdated", userUpdated);
+        // res.status(200).json(userUpdated);
+
+        console.log("newGroup1111", newGroup);
+        res.status(201).json(newGroup);
+      });
     })
     .catch((err) => next(err));
 });
@@ -35,7 +48,7 @@ router.put("/group/:groupId", (req, res, next) => {
       } else {
         return Group.findByIdAndUpdate(
           groupId,
-          { invitedUsers: emailsArrFiltered },
+          { invitedUsers: emailsArrFiltered, belongsToGroup: true },
           { new: true }
         );
       }
