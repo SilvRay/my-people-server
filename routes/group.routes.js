@@ -7,6 +7,7 @@ const User = require("../models/User.model");
 
 // POST /api/groups - Create a new group
 router.post("/groups", (req, res, next) => {
+  console.log("req.payload._id", req.payload._id);
   Group.create({ name: req.body.name })
     .then((newGroup) => {
       User.findByIdAndUpdate(

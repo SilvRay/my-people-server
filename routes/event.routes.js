@@ -7,7 +7,7 @@ const User = require("../models/User.model");
 
 //POST /api/events Création d'un event
 router.post("/events", (req, res, next) => {
-  const organizer = req.payload._id
+  const organizer = req.payload._id;
   const { type, place, date, meal, games, theme } = req.body;
   Event.create({ organizer, type, place, date, meal, games, theme })
     .then((newEvent) => {
@@ -19,16 +19,20 @@ router.post("/events", (req, res, next) => {
 // GET /api/events Affichage des events de tous les utilisateurs de ton group
 router.get("/events", (req, res, next) => {
   //User.findById(req.payload._id)
-  const groupId = req.payload._id  
- /*    .then((foundUser) => {
-      console.log("foundUser",foundUser)
-      return  */
-    Event.find({'organizer.group':groupId, date: { $gte: Date.now() } })
-        .populate('organizer')
-        .sort({ createdAt: -1 })
-    // })
-    .then((allEvents) => {
-      res.status(200).json(allEvents);
+  const groupId = req.payload.group;
+  console.log("here is the content of the payload", req.payload);
+  let eventsFromGroup = [];
+  User.find({ group: groupId })
+    .then((usersFromGroup) => {
+      console.log("usersFromGroups", usersFromGroup);
+      for (let el of usersFromGroup) {
+        Event.find({ organizer: el._id, date: { $gte: Date.now() } })
+          .sort({ createdAt: -1 })
+          .then((eventsFromUser) => eventsFromGroup.push(eventsFromUser));
+      }
+    })
+    .then(() => {
+      res.status(200).json(eventsFromGroup);
     })
     .catch((err) => next(err)); // on recup le group du user connecte
 });
