@@ -19,16 +19,30 @@ router.post("/events", (req, res, next) => {
 // GET /api/events Affichage des events de tous les utilisateurs de ton group
 router.get("/events", (req, res, next) => {
   //User.findById(req.payload._id)
-  const groupId = req.payload._id  
- /*    .then((foundUser) => {
-      console.log("foundUser",foundUser)
-      return  */
-    Event.find({'organizer.group':groupId, date: { $gte: Date.now() } })
-        .populate('organizer')
+  const groupId = "64bbd3d3db4be2e7712f76f9"
+  console.log("here is the content of the payload",req.payload) 
+  let eventsFromGroup = []
+  User.find({group:groupId})
+   .then((usersFromGroup) => {
+      const eventPromises = []
+
+      console.log("usersFromGroups",usersFromGroup)
+
+      for(let el of usersFromGroup){
+        const eventPromise = Event.find({organizer:el._id, date: { $gte: Date.now() } })
         .sort({ createdAt: -1 })
-    // })
-    .then((allEvents) => {
-      res.status(200).json(allEvents);
+        .then((eventsFromUser)=> {
+          console.log("Events from User", eventsFromUser);
+          for(let events of eventsFromUser){
+            eventsFromGroup.push(events)
+          }
+        })
+        eventPromises.push(eventPromise)
+      }
+      return Promise.all(eventPromises)
+   })
+    .then(() => {
+      res.status(200).json(eventsFromGroup);
     })
     .catch((err) => next(err)); // on recup le group du user connecte
 });
