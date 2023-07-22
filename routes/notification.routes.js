@@ -10,6 +10,55 @@ const Group = require("../models/Group.model");
 
 // GET /api/notifications Affichage des notifications
 router.get("/notifications", (req, res, next) => {
+  const page = req.query.page;
+  const skip = (page - 1) * 10;
+  let notificationsArr = [];
+  let groupId=""
+  User.findById(req.payload._id)
+    .then((foundUser) => {
+        return groupId = foundUser.group
+    })
+    .then(() => {
+        console.log("groupId=",groupId)
+      Project.find({ group: groupId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(10)
+        .then((projectsFromDB) => {
+            //console.log('projectsFromDB =', projectsFromDB)
+            notificationsArr.push(...projectsFromDB)
+            return notificationsArr
+            console.log("NotificationArr after projects =", notificationsArr)
+    });
+    })
+    .then(() => {
+        Event.find({ group: groupId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(10)
+        .then((eventsFromDB) => {
+            //console.log("eventsFromDB =",eventsFromDB)
+            console.log("NotificationArr after projects =", notificationsArr)
+            notificationsArr.push(...eventsFromDB)
+            return notificationsArr
+            
+        });
+    })
+    .then(() => {
+        console.log("NotificationArr after both =", notificationsArr)
+        notificationsArr.sort(function (a, b) {
+            return a.createdAt - b.createdAt;
+        });
+        return notificationsArr
+    })
+    .then(() => res.status(200).json(notificationsArr))
+    .catch((err) => next(err));
+});
+
+module.exports = router;
+
+// GET /api/newnotifs Affichage du badge avec les nouvelles notifications
+router.get("/notifications", (req, res, next) => {
   const groupId = req.payload.group;
   let newNotifs = [];
   User.find({ group: groupId })

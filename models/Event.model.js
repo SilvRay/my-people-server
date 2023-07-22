@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const eventSchema = new Schema(
   {
-    organizer: { type: Schema.Types.ObjectId, ref: "User" },
+    creator: { type: Schema.Types.ObjectId, ref: "User" },
     type: {
       type: String,
       enum: [

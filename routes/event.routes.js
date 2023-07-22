@@ -7,30 +7,31 @@ const User = require("../models/User.model");
 
 //POST /api/events Création d'un event
 router.post("/events", (req, res, next) => {
-  const organizer = req.payload._id;
-  User.findById(organizer).then((userFromDB)=>{
+  const creator = req.payload._id;
+  User.findById(creator)
+  .then((userFromDB) => {
     const { type, place, date, meal, games, theme } = req.body;
-    const group = userFromDB.group
-    if (!group){return res.status(500).json({message : "there is no group yet"})}
-    Event.create({ organizer, group, type, place, date, meal, games, theme })
+    const group = userFromDB.group;
+    if (!group) {
+      return res.status(500).json({ message: "there is no group yet" });
+    }
+    Event.create({ creator, group, type, place, date, meal, games, theme })
       .then((newEvent) => {
         res.status(201).json(newEvent);
       })
       .catch((err) => next(err));
-  })
-
+  });
 });
 
 // GET /api/events Affichage des events de tous les utilisateurs de ton group
 router.get("/events", (req, res, next) => {
-  const organizer = req.payload._id;
-  User.findById(organizer)
-    .then((userFromDB)=>{
-      const groupId = userFromDB.group
-      Event.find({group:groupId})
-        .then((eventsFromGroup) => {
+  const creator = req.payload._id;
+  User.findById(creator)
+    .then((userFromDB) => {
+      const groupId = userFromDB.group;
+      Event.find({ group: groupId }).then((eventsFromGroup) => {
         res.status(200).json(eventsFromGroup);
-      })
+      });
     })
     .catch((err) => next(err)); // on recup le group du user connecte
 });
