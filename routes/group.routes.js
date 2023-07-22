@@ -9,13 +9,17 @@ const User = require("../models/User.model");
 router.post("/groups", (req, res, next) => {
   Group.create({ name: req.body.name })
     .then((newGroup) => {
-      console.log("newGroup", newGroup);
-      res.status(201).json(newGroup);
+      User.findByIdAndUpdate(req.payload._id, {group:newGroup._id}, {new:true})
+      .then((userUpdated) => {
+        console.log("updatedUser", userUpdated);
+        console.log("newGroup", newGroup);
+        res.status(201).json(newGroup);
+      })
     })
-    .catch((err) => next(err));
+    .catch((err) => console.log("stg went wrong while creating group", err));
 });
 
-// PUT /api/groups - Add a new member in the group
+// PUT /api/group - Add a new member in the group
 router.put("/group/:groupId", (req, res, next) => {
   console.log("req.body", req.body);
 

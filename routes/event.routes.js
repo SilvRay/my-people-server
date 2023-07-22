@@ -7,7 +7,8 @@ const User = require("../models/User.model");
 
 //POST /api/events Création d'un event
 router.post("/events", (req, res, next) => {
-  const { organizer, type, place, date, meal, games, theme } = req.body;
+  const organizer = req.payload._id
+  const { type, place, date, meal, games, theme } = req.body;
   Event.create({ organizer, type, place, date, meal, games, theme })
     .then((newEvent) => {
       res.status(201).json(newEvent);
@@ -17,13 +18,15 @@ router.post("/events", (req, res, next) => {
 
 // GET /api/events Affichage des events de tous les utilisateurs de ton group
 router.get("/events", (req, res, next) => {
-  User.findById(req.payload._id)
-    
-    .then((foundUser) => {
-      return Event.find({'organizer.group':foundUser.group, date: { $gte: Date.now() } })
+  //User.findById(req.payload._id)
+  const groupId = req.payload._id  
+ /*    .then((foundUser) => {
+      console.log("foundUser",foundUser)
+      return  */
+    Event.find({'organizer.group':groupId, date: { $gte: Date.now() } })
         .populate('organizer')
         .sort({ createdAt: -1 })
-    })
+    // })
     .then((allEvents) => {
       res.status(200).json(allEvents);
     })

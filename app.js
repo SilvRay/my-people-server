@@ -22,7 +22,7 @@ const indexRoutes = require("./routes/index.routes");
 app.use("/api", indexRoutes);
 
 const authRoutes = require("./routes/auth.routes");
-app.use("/api", authRoutes);
+app.use("/auth", authRoutes);
 
 const groupRoutes = require("./routes/group.routes");
 app.use("/api", isAuthenticated, groupRoutes);

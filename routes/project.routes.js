@@ -23,17 +23,20 @@ router.post("/projects", (req, res, next) => {
 router.get("/projects", (req, res, next) => {
   const page = req.query.page;
   const skip = (page - 1) * 10;
-
-  Project.find({endDate: { $gte: Date.now() }})
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(10)
-    .populate("creator")
+  User.findById(req.payload._id)
+    .then((foundUser) => {
+      return Project.find({'creator.group':foundUser.group, endDate: { $gte: Date.now() }})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(10)
+      .populate("creator")
+      })
     .then((allProjects) => {
       res.status(200).json(allProjects);
     })
     .catch((err) => next(err));
-});
+})
+
 
 // GET /api/projects/:projectId Affichage d'un projet
 router.get("/projects/:projectId", (req, res, next) => {
