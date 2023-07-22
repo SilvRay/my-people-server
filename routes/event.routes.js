@@ -8,44 +8,29 @@ const User = require("../models/User.model");
 //POST /api/events Création d'un event
 router.post("/events", (req, res, next) => {
   const organizer = req.payload._id;
-  const { type, place, date, meal, games, theme } = req.body;
-  Event.create({ organizer, type, place, date, meal, games, theme })
-    .then((newEvent) => {
-      res.status(201).json(newEvent);
-    })
-    .catch((err) => next(err));
+  User.findById(organizer).then((userFromDB)=>{
+    const { type, place, date, meal, games, theme } = req.body;
+    const group = userFromDB.group
+    if (!group){return res.status(500).json({message : "there is no group yet"})}
+    Event.create({ organizer, group, type, place, date, meal, games, theme })
+      .then((newEvent) => {
+        res.status(201).json(newEvent);
+      })
+      .catch((err) => next(err));
+  })
+
 });
 
 // GET /api/events Affichage des events de tous les utilisateurs de ton group
 router.get("/events", (req, res, next) => {
-  //User.findById(req.payload._id)
-  const groupId = "64bbd3d3db4be2e7712f76f9";
-  console.log("here is the content of the payload", req.payload);
-  let eventsFromGroup = [];
-  User.find({ group: groupId })
-    .then((usersFromGroup) => {
-      const eventPromises = [];
-
-      console.log("usersFromGroups", usersFromGroup);
-
-      for (let el of usersFromGroup) {
-        const eventPromise = Event.find({
-          organizer: el._id,
-          date: { $gte: Date.now() },
-        })
-          .sort({ createdAt: -1 })
-          .then((eventsFromUser) => {
-            console.log("Events from User", eventsFromUser);
-            for (let events of eventsFromUser) {
-              eventsFromGroup.push(events);
-            }
-          });
-        eventPromises.push(eventPromise);
-      }
-      return Promise.all(eventPromises);
-    })
-    .then(() => {
-      res.status(200).json(eventsFromGroup);
+  const organizer = req.payload._id;
+  User.findById(organizer)
+    .then((userFromDB)=>{
+      const groupId = userFromDB.group
+      Event.find({group:groupId})
+        .then((eventsFromGroup) => {
+        res.status(200).json(eventsFromGroup);
+      })
     })
     .catch((err) => next(err)); // on recup le group du user connecte
 });

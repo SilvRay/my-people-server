@@ -34,6 +34,7 @@ const eventSchema = new Schema(
       type: String,
     },
     participants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    group: {type: Schema.Types.ObjectId, ref:"Group"}
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
