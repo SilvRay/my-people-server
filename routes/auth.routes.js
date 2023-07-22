@@ -81,11 +81,11 @@ router.post("/users", (req, res, next) => {
   Group.find({ invitedUsers: { $in: email } })
     .then((groupFromDB) => {
       console.log("groupfrom DB =", groupFromDB);
-      console.log("group Id=", groupFromDB[0].id);
+      //console.log("group Id=", groupFromDB[0].id);
       return User.create({
         username,
         email,
-        group: groupFromDB[0].id,
+        //group: groupFromDB[0].id,
         password: hashedPassword,
         lastReadNotif,
       });
