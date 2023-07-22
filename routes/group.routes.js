@@ -11,24 +11,18 @@ router.post("/groups", (req, res, next) => {
     .then((newGroup) => {
       User.findByIdAndUpdate(
         req.payload._id,
-        { group: newGroup.id },
+        { group: newGroup._id },
         { new: true }
       ).then((userUpdated) => {
-        if (!userUpdated) {
-          return res.status(500).json({ message: "User does not exist" });
-        }
-
-        console.log("userUpdated", userUpdated);
-        // res.status(200).json(userUpdated);
-
-        console.log("newGroup1111", newGroup);
+        console.log("updatedUser", userUpdated);
+        console.log("newGroup", newGroup);
         res.status(201).json(newGroup);
       });
     })
-    .catch((err) => next(err));
+    .catch((err) => console.log("stg went wrong while creating group", err));
 });
 
-// PUT /api/groups - Add a new member in the group
+// PUT /api/group - Add a new member in the group
 router.put("/group/:groupId", (req, res, next) => {
   console.log("req.body", req.body);
 

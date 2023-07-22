@@ -76,20 +76,27 @@ router.post("/users", (req, res, next) => {
 
   // Create the new user in the database
   // We return a pending promise, which allows us to chain another `then`
-  return User.create({
-    username,
-    email,
-    password: hashedPassword,
-    profile_img,
-    lastReadNotif,
-  })
+
+  //Check if email already belongs to a group through "Invited Users"
+  Group.find({ invitedUsers: { $in: email } })
+    .then((groupFromDB) => {
+      console.log("groupfrom DB =", groupFromDB);
+      console.log("group Id=", groupFromDB[0].id);
+      return User.create({
+        username,
+        email,
+        group: groupFromDB[0].id,
+        password: hashedPassword,
+        lastReadNotif,
+      });
+    })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, username, _id, profile_img, lastReadNotif } = createdUser;
-
+      const { email, username, _id, group, lastReadNotif } = createdUser;
+      console.log("createdUser=", createdUser);
       // Create a new object that doesn't expose the password
-      const user = { email, username, _id, profile_img, lastReadNotif };
+      const user = { email, username, _id, group, lastReadNotif };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
