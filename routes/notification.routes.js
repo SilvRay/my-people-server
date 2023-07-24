@@ -49,39 +49,45 @@ router.get("/notifications", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// PUT /api/notifications Met à jour la date de lecture des notifs
+router.put("/notifications", (req, res, next) => {
+  const today = Date.now();
+  User.findByIdAndUpdate(req.payload._id, {lastReadNotif : today}, {new:true})
+    .then((updatedUser) => {res.status(200).json(updatedUser)})
+    .catch((err) => next(err))
+})
+
 // GET /api/newnotifs Affichage du badge avec les nouvelles notifications
-// router.get("/notifications", (req, res, next) => {
-//   const groupId = req.payload.group;
-//   let newNotifs = [];
-//   User.find({ group: groupId })
-//     .then((usersFromGroup) => {
-//       // Renvoie un tableau d'objets avec les Users du group
-//       for (let el of usersFromGroup) {
-//         Event.find({
-//           organizer: el._id,
-//           createdAt: { $gte: req.payload.lastReadNotif },
-//         })
-//           .then((newEvents) => newNotifs.push(newEvents))
-//           .catch((err) =>
-//             console.log("there was an error looking for new Events", err)
-//           );
-//         Project.find({
-//           creator: el._id,
-//           createdAt: { $gte: req.payload.lastReadNotif },
-//         })
-//           .then((newProjects) => newNotifs.push(newProjects))
-//           .catch((err) =>
-//             console.log("there was an error looking for new Projects", err)
-//           );
-//       }
-//     })
-//     .then(() => {
-//       newNotifs.sort(function (a, b) {
-//         return a.createdAt - b.createdAt;
-//       });
-//       res.status(200).json(newNotifs);
-//     })
-//     .catch((err) => next(err));
-// });
+router.get("/notifications-number", (req, res, next) => {
+  let groupId = "";
+  let lastRead = new Date();
+  let unreadNotifs = 0;
+  User.findById(req.payload._id)
+    .then((foundUser) => {
+      return (groupId = foundUser.group), (lastRead = foundUser.lastReadNotif);
+    })
+    .then(() => {
+      console.log("groupId=", groupId);
+      return (Project.find({
+        group: groupId,
+        createdAt: { $gte: lastRead },
+      }).count());
+    })
+    .then((unreadProjectNotifs) => {
+      console.log("unreadNotifs after projects", unreadProjectNotifs)
+      unreadNotifs += unreadProjectNotifs
+      return (Event.find({
+        group: groupId,
+        createdAt: { $gte: lastRead },
+      }).count());
+    })
+    .then((unreadEventNotifs) => {
+      console.log("unreadNotifs after events", unreadEventNotifs)
+      unreadNotifs += unreadEventNotifs
+      console.log("unreadNotifs total = ", unreadNotifs)
+      res.status(200).json(unreadNotifs);
+    })
+    .catch((err) => next(err));
+});
 
 module.exports = router;
