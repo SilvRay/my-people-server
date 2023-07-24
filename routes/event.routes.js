@@ -7,14 +7,19 @@ const User = require("../models/User.model");
 
 //POST /api/events Création d'un event
 router.post("/events", (req, res, next) => {
+  // Récupérer l'ID de l'utilisateur authentifié depuis le token
   const creator = req.payload._id;
-  User.findById(creator)
-  .then((userFromDB) => {
+  // On recherche le user
+  User.findById(creator).then((userFromDB) => {
+    // Destructuration
     const { type, place, date, meal, games, theme } = req.body;
+    // Récupérer le groupe de l'utilisateur trouvé
     const group = userFromDB.group;
+    // Vérifier si l'utilisateur a bien un groupe
     if (!group) {
       return res.status(500).json({ message: "there is no group yet" });
     }
+    // Création de l'évènement
     Event.create({ creator, group, type, place, date, meal, games, theme })
       .then((newEvent) => {
         res.status(201).json(newEvent);

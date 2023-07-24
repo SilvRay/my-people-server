@@ -60,4 +60,27 @@ router.put("/group/:groupId", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// GET /api/group/me - Récupéerer le groupe associé au user connecté
+router.get("/group/me", (req, res, next) => {
+  // Récupérer l'ID de l'utilisateur authentifié depuis le token
+  const userId = req.payload._id;
+
+  // On recherche le user
+  User.findById(userId)
+    .populate("group") // Populate pour remplacer l'ID du groupe par l'objet complet du groupe
+    .then((userFromDB) => {
+      // Récupérer le groupe associé à l'utilisateur
+      const group = userFromDB.group;
+      //Vérifier si le user a bien un groupe
+      if (!group) {
+        return res
+          .status(404)
+          .json({ message: "User is not associated with any group." });
+      }
+
+      res.status(200).json(group);
+    })
+    .catch((err) => next(err));
+});
+
 module.exports = router;

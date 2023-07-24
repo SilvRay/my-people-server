@@ -5,13 +5,7 @@ const eventSchema = new Schema(
     creator: { type: Schema.Types.ObjectId, ref: "User" },
     type: {
       type: String,
-      enum: [
-        "Let's eat good",
-        "Movie Time",
-        "Playground",
-        "Go out",
-        "Real Talk",
-      ],
+      enum: ["Food Time", "Movie Time", "Game Time", "Trip Time", "Real Talk"],
     },
     place: {
       type: String,
@@ -34,7 +28,7 @@ const eventSchema = new Schema(
       type: String,
     },
     participants: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    group: {type: Schema.Types.ObjectId, ref:"Group"}
+    group: { type: Schema.Types.ObjectId, ref: "Group" },
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
