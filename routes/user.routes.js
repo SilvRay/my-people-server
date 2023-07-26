@@ -25,7 +25,9 @@ router.put("/users", (req, res, next) => {
 
 // GET /api/user/events Affichage des events créés par le user
 router.get("/user/events", (req, res, next) => {
-  Event.find({ organizer: req.payload._id })
+  console.log("req.payload._id is:", req.payload._id);
+
+  Event.find({ creator: req.payload._id })
     .sort({ createdAt: -1 })
     .then((foundedEvents) => {
       res.status(200).json(foundedEvents);
