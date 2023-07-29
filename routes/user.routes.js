@@ -64,4 +64,20 @@ router.get("/users/", (req, res, next) => {
     })
     .catch((err) => next(err));
 });
+
+// GET /api/users/search Affichage des membres du groupe en fonction de leur username
+router.get("/users/search", (req, res, next) => {
+  const groupId = req.payload.group;
+  const searchUsername = req.query.username;
+
+  User.find({
+    group: groupId,
+    username: { $regex: searchUsername, $options: "i" }, // Si l'utilisateur tape 'john' $regex permettra de trouver tous les username contenant la sous-chaîne 'john' et l'option "i" permet une recherche insensible à la casse
+  })
+    .then((usersFromdGroup) => {
+      res.status(200).json(usersFromdGroup);
+    })
+    .catch((err) => next(err));
+});
+
 module.exports = router;
