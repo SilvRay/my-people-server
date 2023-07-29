@@ -43,7 +43,7 @@ router.put("/group/:groupId", (req, res, next) => {
       } else {
         return Group.findByIdAndUpdate(
           groupId,
-          { invitedUsers: emailsArrFiltered, belongsToGroup: true },
+          { invitedUsers: emailsArrFiltered },
           { new: true }
         );
       }

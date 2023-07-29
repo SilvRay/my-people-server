@@ -25,6 +25,8 @@ router.get("/notifications", (req, res, next) => {
       console.log("groupId=", groupId);
 
       return Project.find({ group: groupId }) // Trouver tous les projets du groupe
+        .populate("creator")
+        .sort({ createdAt: -1 })
         .skip(skip) // En fonction de la page, skiper les 10 notif précédentes
         .limit(10); // limiter l'affichage des notifs à 10
     })
@@ -37,6 +39,8 @@ router.get("/notifications", (req, res, next) => {
     })
     .then(() => {
       return Event.find({ group: groupId }) // Trouver tous les events du groupe
+        .populate("creator")
+        .sort({ createdAt: -1 })
         .skip(skip) // En fonction de la page, skiper les 10 notif précédentes
         .limit(10); // limiter l'affichage des notifs à 10
     })
@@ -47,7 +51,7 @@ router.get("/notifications", (req, res, next) => {
 
       // Trier toutes les notifs du plus récent au plus ancien
       notificationsArr.sort(function (a, b) {
-        return a.createdAt - b.createdAt;
+        return b.createdAt - a.createdAt;
       });
       res.status(200).json(notificationsArr); // Renvoyer le tab de notif
     })
@@ -92,6 +96,7 @@ router.get("/notifications-number", (req, res, next) => {
       // console.log("groupId=", groupId);
 
       // Trouver tous les projets du groupe créés que le user n'a pas encore vu
+      // Et retourner son nombre
       return Project.find({
         group: groupId,
         createdAt: { $gte: lastRead },
@@ -104,6 +109,7 @@ router.get("/notifications-number", (req, res, next) => {
       unreadNotifs += unreadProjectNotifs;
 
       // Trouver tous les events du groupe créés que le user n'a pas encore vu
+      // Et retourner son nombre
       return Event.find({
         group: groupId,
         createdAt: { $gte: lastRead },
