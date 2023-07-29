@@ -15,12 +15,13 @@ router.post("/events", (req, res, next) => {
     const { type, place, date, meal, games, theme } = req.body;
     // Récupérer le groupe de l'utilisateur trouvé
     const group = userFromDB.group;
+    const kids = 0;
     // Vérifier si l'utilisateur a bien un groupe
     if (!group) {
       return res.status(500).json({ message: "there is no group yet" });
     }
     // Création de l'évènement
-    Event.create({ creator, group, type, place, date, meal, games, theme })
+    Event.create({ creator, kids, group, type, place, date, meal, games, theme })
       .then((newEvent) => {
         res.status(201).json(newEvent);
       })
@@ -51,7 +52,8 @@ router.get("/events/:eventId", (req, res, next) => {
   }
 
   Event.findById(eventId)
-    .then((foundedEvent) => {
+  .populate("creator")
+  .then((foundedEvent) => {
       res.status(200).json(foundedEvent);
     })
     .catch((err) => next(err));
@@ -60,12 +62,14 @@ router.get("/events/:eventId", (req, res, next) => {
 // PUT /api/events/:eventId/participate Participation à un évènement
 router.put("/events/:eventId/participate", (req, res, next) => {
   const { eventId } = req.params;
-  const { kids } = req.body;
+  const newKids = req.body.kids;
   // const { userId } = req.payload;
+
+  console.log("newKids =", newKids)
 
   Event.findByIdAndUpdate(
     eventId,
-    { kids, $push: { participants: req.payload._id } }, //req.payload._id est l'id du user connecté qui participe à l'event
+    { $inc: {kids : newKids}, $push: { participants: req.payload._id } }, //req.payload._id est l'id du user connecté qui participe à l'event
     { new: true }
   )
     .then((updatedEvent) => {
