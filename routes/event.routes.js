@@ -21,7 +21,17 @@ router.post("/events", (req, res, next) => {
       return res.status(500).json({ message: "there is no group yet" });
     }
     // Création de l'évènement
-    Event.create({ creator, kids, group, type, place, date, meal, games, theme })
+    Event.create({
+      creator,
+      kids,
+      group,
+      type,
+      place,
+      date,
+      meal,
+      games,
+      theme,
+    })
       .then((newEvent) => {
         res.status(201).json(newEvent);
       })
@@ -52,8 +62,8 @@ router.get("/events/:eventId", (req, res, next) => {
   }
 
   Event.findById(eventId)
-  .populate("creator")
-  .then((foundedEvent) => {
+    .populate("creator")
+    .then((foundedEvent) => {
       res.status(200).json(foundedEvent);
     })
     .catch((err) => next(err));
@@ -65,11 +75,11 @@ router.put("/events/:eventId/participate", (req, res, next) => {
   const newKids = req.body.kids;
   // const { userId } = req.payload;
 
-  console.log("newKids =", newKids)
+  console.log("newKids =", newKids);
 
   Event.findByIdAndUpdate(
     eventId,
-    { $inc: {kids : newKids}, $push: { participants: req.payload._id } }, //req.payload._id est l'id du user connecté qui participe à l'event
+    { $inc: { kids: newKids }, $push: { participants: req.payload._id } }, //req.payload._id est l'id du user connecté qui participe à l'event
     { new: true }
   )
     .then((updatedEvent) => {
@@ -80,6 +90,23 @@ router.put("/events/:eventId/participate", (req, res, next) => {
       } else {
         res.status(200).json(updatedEvent);
       }
+    })
+    .catch((err) => next(err));
+});
+
+router.delete("events/:eventId", (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  Event.findByIdAndRemove({ creator: req.payload._id })
+    .then((foundedEvent) => {
+      res
+        .status(204)
+        .json({
+          message: `Event with ${req.payload._id} is removed sucessfully.`,
+        });
     })
     .catch((err) => next(err));
 });
