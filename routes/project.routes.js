@@ -57,6 +57,7 @@ router.get("/projects/:projectId", (req, res, next) => {
   }
 
   Project.findById(projectId)
+    .populate("creator")
     .then((foundedProject) => {
       res.status(200).json(foundedProject);
     })
