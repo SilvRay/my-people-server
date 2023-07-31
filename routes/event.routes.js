@@ -63,6 +63,7 @@ router.get("/events/:eventId", (req, res, next) => {
 
   Event.findById(eventId)
     .populate("creator")
+    .populate("participants")
     .then((foundedEvent) => {
       res.status(200).json(foundedEvent);
     })
@@ -98,14 +99,23 @@ router.put("/events/:eventId", (req, res, next) => {
 // PUT /api/events/:eventId/participate Participation à un évènement
 router.put("/events/:eventId/participate", (req, res, next) => {
   const { eventId } = req.params;
-  const newKids = req.body.kids;
+  const newKids = req.body.kidsNb;
+  const participation = req.body.participation;
   // const { userId } = req.payload;
 
   console.log("newKids =", newKids);
+  console.log("participation=",participation)
+
+  const updateParticipation = { $inc: { kids: newKids } }
+  if (participation) {
+    updateParticipation.$push = { participants: req.payload._id }
+  } else {
+    updateParticipation.$pull = { participants: req.payload._id }
+  }
 
   Event.findByIdAndUpdate(
     eventId,
-    { $inc: { kids: newKids }, $push: { participants: req.payload._id } }, //req.payload._id est l'id du user connecté qui participe à l'event
+    updateParticipation, //req.payload._id est l'id du user connecté qui participe à l'event
     { new: true }
   )
     .then((updatedEvent) => {
