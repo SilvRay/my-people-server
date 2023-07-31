@@ -65,4 +65,51 @@ router.get("/medias/:mediaId", (req, res, next) => {
     .catch((err) => res.json(err));
 });
 
+// PUT /api/medias/:mediaId Ajouter des commentaires
+router.post("/medias/:mediaId/comments", (req, res, next) => {
+  const { mediaId } = req.params;
+  const content = req.body.content;
+
+  console.log("req.body ===", req.body);
+  console.log("mediaId ===", mediaId);
+
+  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
+    return res.status(400).json({ message: "Specified id is not valid" });
+  }
+
+  // Trouver le media par son ID
+  Media.findByIdAndUpdate(
+    mediaId,
+    {
+      $push: {
+        comments: {
+          userId: req.payload._id,
+          content,
+        },
+      },
+    },
+    { new: true }
+  )
+    .then((updatedMedia) => {
+      if (!updatedMedia) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+
+      res.status(200).json(updatedMedia);
+
+      // Créer un nouveau objet comment
+      // const newComment = {
+      //   userId: req.payload._id,
+      //   content: content,
+      // };
+
+      // Ajouter le nouveau commentaire au tableau de commentaires du media trouvé
+      // foundMedia.comments.push(newComment);
+      // return foundMedia;
+    })
+    // .then((updatedMedia) => {
+    // })
+    .catch((err) => next(err));
+});
+
 module.exports = router;

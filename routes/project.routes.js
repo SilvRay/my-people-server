@@ -11,19 +11,22 @@ router.post("/projects", (req, res, next) => {
 
   // Ajouter 2 mois à la date actuelle
   const endDate = new Date();
-  endDate.setMonth(endDate.getMonth() + 2);  
+  endDate.setMonth(endDate.getMonth() + 2);
 
   const creator = req.payload._id;
   User.findById(creator)
     .then((userFromDB) => {
-      const group = userFromDB.group
-      if (!group){return res.status(500).json({message : "there is no group yet"})}
+      const group = userFromDB.group;
+      if (!group) {
+        return res.status(500).json({ message: "there is no group yet" });
+      }
 
-      Project.create({ creator, group, title, description, endDate })
-        .then((newProject) => {
+      Project.create({ creator, group, title, description, endDate }).then(
+        (newProject) => {
           res.status(201).json(newProject);
-        })
-      })
+        }
+      );
+    })
     .catch((err) => next(err));
 });
 
@@ -34,18 +37,17 @@ router.get("/projects", (req, res, next) => {
   User.findById(req.payload._id)
     .then((foundUser) => {
       const groupId = foundUser.group;
-      return Project.find({group:groupId, endDate: { $gte: Date.now() }})
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(10)
-      .populate("creator")
-      })
+      return Project.find({ group: groupId, endDate: { $gte: Date.now() } })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(10)
+        .populate("creator");
+    })
     .then((allProjects) => {
       res.status(200).json(allProjects);
     })
     .catch((err) => next(err));
-})
-
+});
 
 // GET /api/projects/:projectId Affichage d'un projet
 router.get("/projects/:projectId", (req, res, next) => {
@@ -59,6 +61,33 @@ router.get("/projects/:projectId", (req, res, next) => {
   Project.findById(projectId)
     .then((foundedProject) => {
       res.status(200).json(foundedProject);
+    })
+    .catch((err) => next(err));
+});
+
+router.put("/projects/:projectId", (req, res, next) => {
+  const { projectId } = req.params;
+  const { title, description } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  // Rechercher le project par son ID et vérifier si le créateur correspond au user connecté
+  Project.findOneAndUpdate(
+    { _id: projectId, creator: req.payload._id },
+    { title, description },
+    { new: true }
+  )
+    .then((updatedProject) => {
+      if (!updatedProject) {
+        return res
+          .status(404)
+          .json({ message: "The project hasn't been found." });
+      }
+
+      res.status(200).json(updatedProject);
     })
     .catch((err) => next(err));
 });

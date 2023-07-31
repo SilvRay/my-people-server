@@ -69,6 +69,32 @@ router.get("/events/:eventId", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+router.put("/events/:eventId", (req, res, next) => {
+  const { eventId } = req.params;
+  const { type, place, date, meal, games, theme } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    res.status(400).json({ message: "Specified id is not valid" });
+    return;
+  }
+
+  // Rechercher l'event par son ID et vérifier si le créateur correspond au user connecté
+  Event.findOneAndUpdate(
+    { _id: eventId, creator: req.payload._id },
+    { type, place, date, meal, games, theme },
+    { new: true }
+  )
+    .then((updatedEvent) => {
+      if (!updatedEvent) {
+        return res
+          .status(404)
+          .json({ message: "The event hasn't been found." });
+      }
+      res.status(200).json(updatedEvent);
+    })
+    .catch((err) => next(err));
+});
+
 // PUT /api/events/:eventId/participate Participation à un évènement
 router.put("/events/:eventId/participate", (req, res, next) => {
   const { eventId } = req.params;
@@ -102,11 +128,9 @@ router.delete("events/:eventId", (req, res, next) => {
 
   Event.findByIdAndRemove({ creator: req.payload._id })
     .then((foundedEvent) => {
-      res
-        .status(204)
-        .json({
-          message: `Event with ${req.payload._id} is removed sucessfully.`,
-        });
+      res.status(204).json({
+        message: `Event with ${req.payload._id} is removed sucessfully.`,
+      });
     })
     .catch((err) => next(err));
 });

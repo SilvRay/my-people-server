@@ -55,6 +55,22 @@ router.put("/group/:groupId", (req, res, next) => {
           .json({ message: "The group hasn't been found." });
       }
 
+      // Send invitation email to the new user
+      mailer
+        .sendMail({
+          from: `${req.payload.username} <${req.payload.email}>`,
+          to: emailsArrFiltered,
+          subject: "Invitation to MyPeople",
+          text: `You have been invited to join the ${req.payload.username}.`,
+          html: `<p>You have been invited to join the ${req.payload.username}.</p>`,
+        })
+        .then(() => {
+          console.log("Invitation email sent");
+        })
+        .catch((error) => {
+          console.error("Error sending invitation email:", error);
+        });
+
       res.status(200).json(updatedGroup);
     })
     .catch((err) => next(err));
