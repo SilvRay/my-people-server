@@ -65,7 +65,7 @@ router.get("/medias/:mediaId", (req, res, next) => {
     .catch((err) => res.json(err));
 });
 
-// PUT /api/medias/:mediaId Ajouter des commentaires
+// PUT /api/medias/:mediaId/comments Ajouter des commentaires
 router.post("/medias/:mediaId/comments", (req, res, next) => {
   const { mediaId } = req.params;
   const content = req.body.content;
@@ -96,19 +96,25 @@ router.post("/medias/:mediaId/comments", (req, res, next) => {
       }
 
       res.status(200).json(updatedMedia);
-
-      // Créer un nouveau objet comment
-      // const newComment = {
-      //   userId: req.payload._id,
-      //   content: content,
-      // };
-
-      // Ajouter le nouveau commentaire au tableau de commentaires du media trouvé
-      // foundMedia.comments.push(newComment);
-      // return foundMedia;
     })
-    // .then((updatedMedia) => {
-    // })
+
+    .catch((err) => next(err));
+});
+
+// GeET /api/medias/:mediaId/comments Affichage des commentaires
+router.get("/medias/:mediaId/comments", (req, res, next) => {
+  const { mediaId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
+    return res.status(400).json({ message: "Specified id is not valid" });
+  }
+
+  // Trouver le media par son ID
+  Media.findById(mediaId)
+    .populate("comments.userId")
+    .then((foundedMedia) => {
+      res.status(200).json(foundedMedia.comments);
+    })
     .catch((err) => next(err));
 });
 

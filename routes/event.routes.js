@@ -69,6 +69,7 @@ router.get("/events/:eventId", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// PUT /api/events/:eventId Modification de son propre évènement
 router.put("/events/:eventId", (req, res, next) => {
   const { eventId } = req.params;
   const { type, place, date, meal, games, theme } = req.body;
@@ -98,7 +99,7 @@ router.put("/events/:eventId", (req, res, next) => {
 // PUT /api/events/:eventId/participate Participation à un évènement
 router.put("/events/:eventId/participate", (req, res, next) => {
   const { eventId } = req.params;
-  const newKids = req.body.kids;
+  const newKids = req.body.kidsNb;
   // const { userId } = req.payload;
 
   console.log("newKids =", newKids);
