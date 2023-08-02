@@ -8,17 +8,43 @@ const Project = require("../models/Project.model");
 const Media = require("../models/Media.model");
 const Group = require("../models/Group.model");
 
+const fileUploader = require("../config/cloudinary.config");
+
+// POST "/api/upload" => Route qui reçoit l'image, l'envoie à Cloudinary via le fileUploader and retourne l'URL de l'image
+router.post("/upload", fileUploader.single("profileImg"), (req, res, next) => {
+  console.log("file is: ", req.file);
+
+  if (!req.file) {
+    next(new Error("No file uploaded!"));
+    return;
+  }
+
+  // Récupérer l'URL du fichier uploadé et l'envoyer en réponse
+  // 'fileUrl' peut être nommé commme on le veut, juste se soivenir d'utiliser le même dans le FrontEnd
+
+  res.json({ imageUrl: req.file.path });
+});
+
 // PUT /api/users Modification du profil
 router.put("/users", (req, res, next) => {
-  const { username, profile_img, birthday } = req.body;
+  const { username, profileImg, birthday } = req.body;
 
   User.findByIdAndUpdate(
     req.payload._id,
-    { username, profile_img, birthday },
+    { username, profile_img: profileImg, birthday },
     { new: true }
   )
     .then((updatedUser) => {
       res.status(200).json(updatedUser);
+    })
+    .catch((err) => next(err));
+});
+
+// GET /api/users Affichage des informations du user
+router.get("/user", (req, res, next) => {
+  User.findById(req.payload._id)
+    .then((foundedUser) => {
+      res.status(200).json(foundedUser);
     })
     .catch((err) => next(err));
 });
@@ -56,7 +82,7 @@ router.get("/user/medias", (req, res, next) => {
 });
 
 // GET /api/users Affichage des membres du groupe
-router.get("/users/", (req, res, next) => {
+router.get("/users", (req, res, next) => {
   const groupId = req.payload.group;
   User.find({ group: groupId })
     .then((usersFromGroup) => {
