@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 const Group = require("../models/Group.model");
 const User = require("../models/User.model");
+const mailer = require('../config/mailer.config.js')
 
 // POST /api/groups - Create a new group
 router.post("/groups", (req, res, next) => {
@@ -58,11 +59,11 @@ router.put("/group/:groupId", (req, res, next) => {
       // Send invitation email to the new user
       mailer
         .sendMail({
-          from: `${req.payload.username} <${req.payload.email}>`,
-          to: emailsArrFiltered,
+          from: `"My People" <my-people@outlook.fr>`,
+          to: invitedUsers,
           subject: "Invitation to MyPeople",
-          text: `You have been invited to join the ${req.payload.username}.`,
-          html: `<p>You have been invited to join the ${req.payload.username}.</p>`,
+          text: `${req.payload.username} is inviting you to join his group on MyPeople`,
+          html: `<p>${req.payload.username} is inviting you to join his group on MyPeople</p><br><p>You can follow this link and discover a new way to spend time with your friends and family : <a href=https://my-people.com>Here </a></p>  `,
         })
         .then(() => {
           console.log("Invitation email sent");
