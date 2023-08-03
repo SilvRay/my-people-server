@@ -2,13 +2,35 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const User = require("../models/User.model");
+const fileUploader = require("../config/cloudinary.config");
 
 const Media = require("../models/Media.model");
 
+// POST "/api/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
+//router.post("/upload", fileUploader.fields([{ name: "mediasUrl", maxCount: 10 }]), (req, res, next) => {
+router.post("/upload", fileUploader.single("mediasUrl"), (req, res, next) => {
+
+  console.log("files are: ", req.file)
+  //const filesUrl = req.files.mediasUrl.map((el) => el.path)
+  if (!req.file) {
+    next(new Error("No file uploaded!"));
+    return;
+  }
+  // Get the URL of the uploaded file and send it as a response.
+  // 'fileUrl' can be any name, just make sure you remember to use the same when accessing it on the frontend
+  res.json({ filesUrl: req.file.path });
+
+});
+
+
+
 // POST /api/medias Create a post
 router.post("/medias", (req, res, next) => {
-  const { medias, legend } = req.body;
+  const legend = req.body.legend;
+  const medias = req.body.mediasUrl
   const creator = req.payload._id;
+  //const mediasFromPost = req.files.postMedia.map((el) => el.path);
+
   User.findById(creator)
     .then((userFromDB) => {
       const group = userFromDB.group;
