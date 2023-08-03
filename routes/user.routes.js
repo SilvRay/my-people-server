@@ -40,9 +40,19 @@ router.put("/users", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// GET /api/users Affichage des informations du user
+// GET /api/user Affichage des informations du user
 router.get("/user", (req, res, next) => {
   User.findById(req.payload._id)
+    .then((foundedUser) => {
+      res.status(200).json(foundedUser);
+    })
+    .catch((err) => next(err));
+});
+
+// GET /api/user/:userId Affichage des informations d'un membre
+router.get("/user/:userId", (req, res, next) => {
+  const { userId } = req.params;
+  User.findById(userId)
     .then((foundedUser) => {
       res.status(200).json(foundedUser);
     })
@@ -61,6 +71,18 @@ router.get("/user/events", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// GET /api/user/events Affichage des events créé par un membre
+router.get("/user/:userId/events", (req, res, next) => {
+  const { userId } = req.params;
+
+  Event.find({ creator: userId })
+    .sort({ createdAt: -1 })
+    .then((foundedEvents) => {
+      res.status(200).json(foundedEvents);
+    })
+    .catch((err) => next(err));
+});
+
 // GET /api/user/projects Affichage des projects créés par le user
 router.get("/user/projects", (req, res, next) => {
   Project.find({ creator: req.payload._id })
@@ -71,9 +93,33 @@ router.get("/user/projects", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+// GET /api/user/projects Affichage des projects créés par un membre
+router.get("/user/:userId/projects", (req, res, next) => {
+  const { userId } = req.params;
+
+  Project.find({ creator: userId })
+    .sort({ createdAt: -1 })
+    .then((foundedProjects) => {
+      res.status(200).json(foundedProjects);
+    })
+    .catch((err) => next(err));
+});
+
 // GET /api/user/medias Affichage des photos et vidéos postées par le user
 router.get("/user/medias", (req, res, next) => {
   Media.find({ creator: req.payload._id })
+    .sort({ createdAt: -1 })
+    .then((foundedMedias) => {
+      res.status(200).json(foundedMedias);
+    })
+    .catch((err) => next(err));
+});
+
+// GET /api/user/medias Affichage des photos et vidéos postées par un membre
+router.get("/user/:userId/medias", (req, res, next) => {
+  const { userId } = req.params;
+
+  Media.find({ creator: userId })
     .sort({ createdAt: -1 })
     .then((foundedMedias) => {
       res.status(200).json(foundedMedias);
