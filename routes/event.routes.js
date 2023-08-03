@@ -44,12 +44,12 @@ router.get("/events", (req, res, next) => {
   const creator = req.payload._id;
   User.findById(creator)
     .then((userFromDB) => {
-      const groupId = userFromDB.group;
+      const groupId = userFromDB.group; // on recup le group du user connecte
       Event.find({ group: groupId }).then((eventsFromGroup) => {
         res.status(200).json(eventsFromGroup);
       });
     })
-    .catch((err) => next(err)); // on recup le group du user connecte
+    .catch((err) => next(err));
 });
 
 // GET /api/events Affichage d'un event
