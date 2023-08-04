@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 const Group = require("../models/Group.model");
 const User = require("../models/User.model");
-const mailer = require('../config/mailer.config.js')
+const mailer = require("../config/mailer.config.js");
 
 // POST /api/groups - Create a new group
 router.post("/groups", (req, res, next) => {
@@ -25,31 +25,43 @@ router.post("/groups", (req, res, next) => {
 });
 
 // PUT /api/group - Add a new member in the group
-router.put("/group/:groupId", (req, res, next) => {
+router.put("/group", (req, res, next) => {
   console.log("req.body", req.body);
+  const invitedUsers = req.body.emailsList
+  console.log("invited Users", invitedUsers)
 
-  const { groupId } = req.params;
-  const { invitedUsers } = req.body;
+  // Créer une variable pour l'id du groupe
+  let groupId = "64cd27678e0e937020502d74";
 
-  // Rechercher les users déjà présents dans la base de données
-  User.find({ email: { $in: invitedUsers } })
-    .then((alreadyPresentUsers) => {
-      // Filtrer les emails, à la fin il ne doit rester que ceux non trouvés dans les objets users
-      const emailsArrFiltered = invitedUsers.filter((email) => {
-        return !alreadyPresentUsers.some((user) => user.email === email);
-      });
-
-      if (emailsArrFiltered.length === 0) {
-        return res.status(200).json({ message: "No Adresses to add." });
-      } else {
-        return Group.findByIdAndUpdate(
-          groupId,
-          { invitedUsers: emailsArrFiltered },
-          { new: true }
-        );
-      }
+  User.findById(req.payload._id)
+    .then((foundUser) => {
+      return (groupId = foundUser.group);
     })
+    .then(() => {
+      // Rechercher les users déjà présents dans la base de données
+      // User.find({ email: { $in: invitedUsers } }).then(
+      //   (alreadyPresentUsers) => {
+      //     console.log("already Present Users =", !alreadyPresentUsers)
+      //     // Filtrer les emails, à la fin il ne doit rester que ceux non trouvés dans les objets users
+      //     const emailsArrFiltered = invitedUsers.filter((email) => {
+      //       return !alreadyPresentUsers.some((user) => user.email === email);
+      //     });
+
+      //     if (emailsArrFiltered.length === 0) {
+      //       return res.status(200).json({ message: "No Adresses to add." });
+      //     } else {
+            return Group.findByIdAndUpdate(
+              groupId,
+              { invitedUsers:invitedUsers },
+              { new: true }
+            );
+          })
+      //   }
+      // );
+    // })
+
     .then((updatedGroup) => {
+      console.log("updated group",updatedGroup)
       if (!updatedGroup) {
         return res
           .status(404)
