@@ -102,9 +102,7 @@ router.get("/group/me", (req, res, next) => {
       const group = userFromDB.group;
       //Vérifier si le user a bien un groupe
       if (!group) {
-        return res
-          .status(404)
-          .json({ message: "User is not associated with any group." });
+        return res.status(404);
       }
 
       res.status(200).json(group);
