@@ -31,7 +31,7 @@ router.put("/group", (req, res, next) => {
   console.log("invited Users", invitedUsers)
 
   // Créer une variable pour l'id du groupe
-  let groupId = "64cd27678e0e937020502d74";
+  let groupId = "";
 
   User.findById(req.payload._id)
     .then((foundUser) => {
