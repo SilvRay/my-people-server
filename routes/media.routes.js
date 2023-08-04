@@ -7,33 +7,34 @@ const fileUploader = require("../config/cloudinary.config");
 const Media = require("../models/Media.model");
 
 // POST "/api/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
-router.post("/upload", fileUploader.fields([{ name: "mediasUrl", maxCount: 10 }]), (req, res, next) => {
-//router.post("/upload", fileUploader.single("mediasUrl"), (req, res, next) => {
+router.post(
+  "/upload",
+  fileUploader.fields([{ name: "mediasUrl", maxCount: 10 }]),
+  (req, res, next) => {
+    //router.post("/upload", fileUploader.single("mediasUrl"), (req, res, next) => {
 
-  console.log("files are: ", req.files.mediasUrl[0])
-  //const filesUrl = req.files.mediasUrl.map((el) => el.path)
-  if (!req.files.mediasUrl) {
-    next(new Error("No file uploaded!"));
-    return;
+    console.log("files are: ", req.files.mediasUrl[0]);
+    //const filesUrl = req.files.mediasUrl.map((el) => el.path)
+    if (!req.files.mediasUrl) {
+      next(new Error("No file uploaded!"));
+      return;
+    }
+    let urlArr = [];
+    for (let el of req.files.mediasUrl) {
+      urlArr.push(el.path);
+    }
+
+    // Get the URL of the uploaded file and send it as a response.
+    // 'fileUrl' can be any name, just make sure you remember to use the same when accessing it on the frontend
+    res.json({ filesUrl: urlArr });
   }
-  let urlArr= []
-  for(let el of req.files.mediasUrl){
-    urlArr.push(el.path)
-  }
-  
-  // Get the URL of the uploaded file and send it as a response.
-  // 'fileUrl' can be any name, just make sure you remember to use the same when accessing it on the frontend
-  res.json({ filesUrl: urlArr});
-
-});
-
-
+);
 
 // POST /api/medias Create a post
 router.post("/medias", (req, res, next) => {
   //const legend = req.body.legend;
-  const medias = req.body
-  console.log("media passed from client ==", medias)
+  const medias = req.body;
+  console.log("media passed from client ==", medias);
   const creator = req.payload._id;
   //const mediasFromPost = req.files.postMedia.map((el) => el.path);
 
@@ -88,7 +89,8 @@ router.get("/medias/:mediaId", (req, res, next) => {
 
   Media.findById(mediaId)
     .then((foundedMedia) => {
-      res.status(200).json(foundedMedia);
+      const mediaUrls = foundedMedia.medias;
+      res.status(200).json({ medias: mediaUrls });
     })
     .catch((err) => res.json(err));
 });
@@ -106,14 +108,12 @@ router.put("/medias/:mediaId/legend", (req, res, next) => {
   }
 
   // Trouver le media par son ID
-  Media.findByIdAndUpdate(
-    mediaId, {legend},{ new: true })
+  Media.findByIdAndUpdate(mediaId, { legend }, { new: true })
     .then((updatedMedia) => {
       res.status(200).json(updatedMedia);
     })
     .catch((err) => next(err));
 });
-
 
 // PUT /api/medias/:mediaId/comments Ajouter des commentaires
 router.post("/medias/:mediaId/comments", (req, res, next) => {
