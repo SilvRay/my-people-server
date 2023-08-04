@@ -31,8 +31,9 @@ router.post("/upload", fileUploader.fields([{ name: "mediasUrl", maxCount: 10 }]
 
 // POST /api/medias Create a post
 router.post("/medias", (req, res, next) => {
-  const legend = req.body.legend;
-  const medias = req.body.mediasUrl
+  //const legend = req.body.legend;
+  const medias = req.body
+  console.log("media passed from client ==", medias)
   const creator = req.payload._id;
   //const mediasFromPost = req.files.postMedia.map((el) => el.path);
 
@@ -42,7 +43,7 @@ router.post("/medias", (req, res, next) => {
       if (!group) {
         return res.status(500).json({ message: "there is no group yet" });
       }
-      Media.create({ group, medias, legend, creator }).then((newMedia) => {
+      Media.create({ group, medias, creator }).then((newMedia) => {
         res.status(201).json(newMedia);
       });
     })
@@ -91,6 +92,28 @@ router.get("/medias/:mediaId", (req, res, next) => {
     })
     .catch((err) => res.json(err));
 });
+
+// PUT /api/medias/:mediaId/legend pour rajouter une légende au post
+router.put("/medias/:mediaId/legend", (req, res, next) => {
+  const { mediaId } = req.params;
+  const legend = req.body.legend;
+
+  console.log("req.body ===", req.body);
+  console.log("mediaId ===", mediaId);
+
+  if (!mongoose.Types.ObjectId.isValid(mediaId)) {
+    return res.status(400).json({ message: "Specified id is not valid" });
+  }
+
+  // Trouver le media par son ID
+  Media.findByIdAndUpdate(
+    mediaId, {legend},{ new: true })
+    .then((updatedMedia) => {
+      res.status(200).json(updatedMedia);
+    })
+    .catch((err) => next(err));
+});
+
 
 // PUT /api/medias/:mediaId/comments Ajouter des commentaires
 router.post("/medias/:mediaId/comments", (req, res, next) => {
