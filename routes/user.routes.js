@@ -49,16 +49,6 @@ router.get("/user", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// GET /api/user/:userId Affichage des informations d'un membre
-router.get("/user/:userId", (req, res, next) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .then((foundedUser) => {
-      res.status(200).json(foundedUser);
-    })
-    .catch((err) => next(err));
-});
-
 // GET /api/user/events Affichage des events créés par le user
 router.get("/user/events", (req, res, next) => {
   console.log("req.payload._id is:", req.payload._id);
@@ -107,6 +97,7 @@ router.get("/user/:userId/projects", (req, res, next) => {
 
 // GET /api/user/medias Affichage des photos et vidéos postées par le user
 router.get("/user/medias", (req, res, next) => {
+  console.log("req.payload._id in /user/medias get route ==",req.payload._id )
   Media.find({ creator: req.payload._id })
     .sort({ createdAt: -1 })
     .then((foundedMedias) => {
@@ -122,6 +113,7 @@ router.get("/user/:userId/medias", (req, res, next) => {
   Media.find({ creator: userId })
     .sort({ createdAt: -1 })
     .then((foundedMedias) => {
+      console.log("found Media ===", foundedMedias)
       res.status(200).json(foundedMedias);
     })
     .catch((err) => next(err));
@@ -152,4 +144,14 @@ router.get("/users/search", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-module.exports = router;
+// GET /api/user/:userId Affichage des informations d'un membre
+router.get("/user/:userId", (req, res, next) => {
+  const { userId } = req.params;
+  User.findById(userId)
+    .then((foundedUser) => {
+      res.status(200).json(foundedUser);
+    })
+    .catch((err) => next(err));
+});
+
+ module.exports = router;

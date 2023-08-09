@@ -93,11 +93,13 @@ router.put("/group", (req, res, next) => {
 router.get("/group/me", (req, res, next) => {
   // Récupérer l'ID de l'utilisateur authentifié depuis le token
   const userId = req.payload._id;
+  console.log("userId ===",userId)
 
   // On recherche le user
   User.findById(userId)
     .populate("group") // Populate pour remplacer l'ID du groupe par l'objet complet du groupe
     .then((userFromDB) => {
+      
       // Récupérer le groupe associé à l'utilisateur
       const group = userFromDB.group;
       //Vérifier si le user a bien un groupe
