@@ -18,10 +18,10 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required."],
     },
-    profile_img: String,
+    profileImg: String,
     birthday: Date,
     group: { type: Schema.Types.ObjectId, ref: "Group" },
-    lastReadNotif : Date,
+    lastReadNotif: Date,
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`

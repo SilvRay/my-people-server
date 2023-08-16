@@ -11,19 +11,23 @@ const Group = require("../models/Group.model");
 const fileUploader = require("../config/cloudinary.config");
 
 // POST "/api/upload" => Route qui reçoit l'image, l'envoie à Cloudinary via le fileUploader and retourne l'URL de l'image
-router.post("/upload", fileUploader.single("profileImg"), (req, res, next) => {
-  console.log("file is: ", req.file);
+router.post(
+  "/upload/profileImg",
+  fileUploader.single("profileImg"),
+  (req, res, next) => {
+    console.log("file is: ", req.file);
 
-  if (!req.file) {
-    next(new Error("No file uploaded!"));
-    return;
+    if (!req.file) {
+      next(new Error("No file uploaded!"));
+      return;
+    }
+
+    // Récupérer l'URL du fichier uploadé et l'envoyer en réponse
+    // 'fileUrl' peut être nommé commme on le veut, juste se soivenir d'utiliser le même dans le FrontEnd
+
+    res.json({ imageUrl: req.file.path });
   }
-
-  // Récupérer l'URL du fichier uploadé et l'envoyer en réponse
-  // 'fileUrl' peut être nommé commme on le veut, juste se soivenir d'utiliser le même dans le FrontEnd
-
-  res.json({ imageUrl: req.file.path });
-});
+);
 
 // PUT /api/users Modification du profil
 router.put("/users", (req, res, next) => {
@@ -31,7 +35,7 @@ router.put("/users", (req, res, next) => {
 
   User.findByIdAndUpdate(
     req.payload._id,
-    { username, profile_img: profileImg, birthday },
+    { username, profileImg: profileImg, birthday },
     { new: true }
   )
     .then((updatedUser) => {
@@ -97,7 +101,7 @@ router.get("/user/:userId/projects", (req, res, next) => {
 
 // GET /api/user/medias Affichage des photos et vidéos postées par le user
 router.get("/user/medias", (req, res, next) => {
-  console.log("req.payload._id in /user/medias get route ==",req.payload._id )
+  console.log("req.payload._id in /user/medias get route ==", req.payload._id);
   Media.find({ creator: req.payload._id })
     .sort({ createdAt: -1 })
     .then((foundedMedias) => {
@@ -113,7 +117,7 @@ router.get("/user/:userId/medias", (req, res, next) => {
   Media.find({ creator: userId })
     .sort({ createdAt: -1 })
     .then((foundedMedias) => {
-      console.log("found Media ===", foundedMedias)
+      console.log("found Media ===", foundedMedias);
       res.status(200).json(foundedMedias);
     })
     .catch((err) => next(err));
@@ -154,4 +158,4 @@ router.get("/user/:userId", (req, res, next) => {
     .catch((err) => next(err));
 });
 
- module.exports = router;
+module.exports = router;

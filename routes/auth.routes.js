@@ -44,7 +44,7 @@ router.head("/users", (req, res, next) => {
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/users", (req, res, next) => {
-  const { email, username, password, profile_img } = req.body;
+  const { email, username, password, profileImg } = req.body;
   const lastReadNotif = Date.now();
 
   // Check if email or password or name are provided as empty strings
@@ -139,7 +139,7 @@ router.post("/sessions", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, username, group, profile_img, lastReadNotif } =
+        const { _id, email, username, group, profileImg, lastReadNotif } =
           foundUser;
 
         // Create an object that will be set as the token payload
@@ -148,7 +148,7 @@ router.post("/sessions", (req, res, next) => {
           email,
           username,
           group,
-          profile_img,
+          profileImg,
           lastReadNotif,
         };
 

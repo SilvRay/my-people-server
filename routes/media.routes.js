@@ -8,7 +8,7 @@ const Media = require("../models/Media.model");
 
 // POST "/api/upload" => Route that receives the image, sends it to Cloudinary via the fileUploader and returns the image URL
 router.post(
-  "/upload",
+  "/upload/post",
   fileUploader.fields([{ name: "mediasUrl", maxCount: 10 }]),
   (req, res, next) => {
     //router.post("/upload", fileUploader.single("mediasUrl"), (req, res, next) => {
