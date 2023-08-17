@@ -24,7 +24,7 @@ router.get("/notifications", (req, res, next) => {
     .then(() => {
       console.log("groupId=", groupId);
 
-      return Project.find({ group: groupId }) // Trouver tous les projets du groupe
+      return Project.find({ group: groupId, creator: { $ne: req.payload._id } }) // Trouver tous les projets du groupe
         .populate("creator")
         .sort({ createdAt: -1 })
         .skip(skip) // En fonction de la page, skiper les 10 notif précédentes
@@ -38,7 +38,7 @@ router.get("/notifications", (req, res, next) => {
       console.log("NotificationArr after projects =", notificationsArr);
     })
     .then(() => {
-      return Event.find({ group: groupId }) // Trouver tous les events du groupe
+      return Event.find({ group: groupId, creator: { $ne: req.payload._id } }) // Trouver tous les events du groupe
         .populate("creator")
         .sort({ createdAt: -1 })
         .skip(skip) // En fonction de la page, skiper les 10 notif précédentes
