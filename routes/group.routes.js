@@ -27,8 +27,8 @@ router.post("/groups", (req, res, next) => {
 // PUT /api/group - Add a new member in the group
 router.put("/group", (req, res, next) => {
   console.log("req.body", req.body);
-  const invitedUsers = req.body.emailsList
-  console.log("invited Users", invitedUsers)
+  const invitedUsers = req.body.emailsList;
+  console.log("invited Users", invitedUsers);
 
   // Créer une variable pour l'id du groupe
   let groupId = "";
@@ -50,18 +50,18 @@ router.put("/group", (req, res, next) => {
       //     if (emailsArrFiltered.length === 0) {
       //       return res.status(200).json({ message: "No Adresses to add." });
       //     } else {
-            return Group.findByIdAndUpdate(
-              groupId,
-              { invitedUsers:invitedUsers },
-              { new: true }
-            );
-          })
-      //   }
-      // );
+      return Group.findByIdAndUpdate(
+        groupId,
+        { invitedUsers: invitedUsers },
+        { new: true }
+      );
+    })
+    //   }
+    // );
     // })
 
     .then((updatedGroup) => {
-      console.log("updated group",updatedGroup)
+      console.log("updated group", updatedGroup);
       if (!updatedGroup) {
         return res
           .status(404)
@@ -93,18 +93,17 @@ router.put("/group", (req, res, next) => {
 router.get("/group/me", (req, res, next) => {
   // Récupérer l'ID de l'utilisateur authentifié depuis le token
   const userId = req.payload._id;
-  console.log("userId ===",userId)
+  console.log("userId ===", userId);
 
   // On recherche le user
   User.findById(userId)
     .populate("group") // Populate pour remplacer l'ID du groupe par l'objet complet du groupe
     .then((userFromDB) => {
-      
       // Récupérer le groupe associé à l'utilisateur
       const group = userFromDB.group;
       //Vérifier si le user a bien un groupe
       if (!group) {
-        return res.status(404);
+        return res.status(404).json({ message: "There is no group yet" });
       }
 
       res.status(200).json(group);
