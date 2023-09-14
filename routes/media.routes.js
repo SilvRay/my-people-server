@@ -83,7 +83,7 @@ router.get("/medias/:mediaId", (req, res, next) => {
   const { mediaId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(mediaId)) {
-    res.status(400).json({ message: "Specified id is not valid" });
+    res.status(400);
     return;
   }
 

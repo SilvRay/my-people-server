@@ -131,13 +131,15 @@ router.put("/events/:eventId/participate", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-router.delete("events/:eventId", (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+router.delete("/events/:eventId", (req, res, next) => {
+  const { eventId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
     res.status(400).json({ message: "Specified id is not valid" });
     return;
   }
 
-  Event.findByIdAndRemove({ creator: req.payload._id })
+  Event.findByIdAndRemove(eventId)
     .then((foundedEvent) => {
       res.status(204).json({
         message: `Event with ${req.payload._id} is removed sucessfully.`,
