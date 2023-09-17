@@ -142,7 +142,7 @@ router.delete("/events/:eventId", (req, res, next) => {
   Event.findByIdAndRemove(eventId)
     .then((foundedEvent) => {
       res.status(204).json({
-        message: `Event with ${req.payload._id} is removed sucessfully.`,
+        message: `Event with ${req.payload._id} is removed successfully.`,
       });
     })
     .catch((err) => next(err));

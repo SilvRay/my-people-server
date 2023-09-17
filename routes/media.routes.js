@@ -115,13 +115,14 @@ router.put("/medias/:mediaId/legend", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// PUT /api/medias/:mediaId/comments Ajouter des commentaires
+// POST /api/medias/:mediaId/comments Ajouter des commentaires
 router.post("/medias/:mediaId/comments", (req, res, next) => {
   const { mediaId } = req.params;
   const content = req.body.content;
 
   console.log("req.body ===", req.body);
   console.log("mediaId ===", mediaId);
+  console.log("req.payload._id ===", req.payload._id);
 
   if (!mongoose.Types.ObjectId.isValid(mediaId)) {
     return res.status(400).json({ message: "Specified id is not valid" });
@@ -151,7 +152,7 @@ router.post("/medias/:mediaId/comments", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-// GeET /api/medias/:mediaId/comments Affichage des commentaires
+// GET /api/medias/:mediaId/comments Affichage des commentaires
 router.get("/medias/:mediaId/comments", (req, res, next) => {
   const { mediaId } = req.params;
 
@@ -164,6 +165,37 @@ router.get("/medias/:mediaId/comments", (req, res, next) => {
     .populate("comments.userId")
     .then((foundedMedia) => {
       res.status(200).json(foundedMedia.comments);
+    })
+    .catch((err) => next(err));
+});
+
+router.delete("/medias/:mediaId/comments/:commentId", (req, res, next) => {
+  const { mediaId } = req.params;
+  const { commentId } = req.params;
+
+  console.log("mediaId ===", mediaId);
+  console.log("commentId ===", commentId);
+
+  Media.findById(mediaId)
+    .then((mediaFounded) => {
+      console.log("mediaFounded ===", mediaFounded);
+
+      const updatedComments = mediaFounded.comments.filter(
+        (comment) => comment.id !== commentId
+      );
+      console.log("updatedComments ===", updatedComments);
+      return updatedComments;
+    })
+    .then((updatedComments) => {
+      return Media.findByIdAndUpdate(
+        mediaId,
+        { comments: updatedComments },
+        { new: true }
+      ).then((mediaUpdated) => {
+        res.status(204).json({
+          message: `Comment with ${commentId} has been successfully removed`,
+        });
+      });
     })
     .catch((err) => next(err));
 });
