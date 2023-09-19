@@ -87,23 +87,26 @@ router.get("/notifications-number", (req, res, next) => {
   // Notif non lues au départ sont de 0
   let unreadNotifs = 0;
 
-  // Trouver le user connecté et retourner son groupe et la dernière fois qu'il a lu ses notifs
+  // Trouver le user connecté et retourner son groupe
+  // et la dernière fois qu'il a lu ses notifs
   User.findById(req.payload._id)
     .then((foundUser) => {
       return (groupId = foundUser.group), (lastRead = foundUser.lastReadNotif);
     })
-    .then(() => {
-      // console.log("groupId=", groupId);
+    .then((lastRead) => {
+      console.log("groupId=", groupId);
+      console.log("lastRead", lastRead);
 
       // Trouver tous les projets du groupe créés que le user n'a pas encore vu
       // Et retourner son nombre
       return Project.find({
         group: groupId,
+        creator: { $ne: req.payload._id },
         createdAt: { $gte: lastRead },
       }).count();
     })
     .then((unreadProjectNotifs) => {
-      // console.log("unreadNotifs after projects", unreadProjectNotifs);
+      console.log("unreadNotifs after projects", unreadProjectNotifs);
 
       // Ajouter au total de notifs non lues
       unreadNotifs += unreadProjectNotifs;
@@ -112,16 +115,17 @@ router.get("/notifications-number", (req, res, next) => {
       // Et retourner son nombre
       return Event.find({
         group: groupId,
+        creator: { $ne: req.payload._id },
         createdAt: { $gte: lastRead },
       }).count();
     })
     .then((unreadEventNotifs) => {
-      // console.log("unreadNotifs after events", unreadEventNotifs);
+      console.log("unreadNotifs after events", unreadEventNotifs);
 
       // Ajouter au total de notifs non lues
       unreadNotifs += unreadEventNotifs;
 
-      // console.log("unreadNotifs total = ", unreadNotifs);
+      console.log("unreadNotifs total = ", unreadNotifs);
 
       res.status(200).json(unreadNotifs); // Renvoyer le total de notifs non lues
     })
