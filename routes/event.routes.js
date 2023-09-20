@@ -148,4 +148,36 @@ router.delete("/events/:eventId", (req, res, next) => {
     .catch((err) => next(err));
 });
 
+router.delete("/events", (req, res, next) => {
+  Event.find()
+    .then((allEvents) => {
+      console.log("All EVENTS from DB ===", allEvents);
+
+      const today = Date.now();
+
+      // Créer un tableau de promesses de suppression d'un event
+      const removalPromises = allEvents.map((event) => {
+        console.log("One of all events ===", event);
+
+        if (event.date < today) {
+          // Retourner une promesse pour chaque suppression
+          return Event.findByIdAndRemove(event._id).then(() => {
+            console.log("One Event removed successfully");
+          });
+        }
+      });
+
+      // Attendre que toutes les suppressions ont eu lieu grâce à Promise.all
+      Promise.all(removalPromises)
+        .then(() => {
+          // Renvoyer une seule réponse après que tous les events ont été traités
+          res.status(204).json({
+            message: `Events is removed successfully`,
+          });
+        })
+        .catch((err) => next(err));
+    })
+    .catch((err) => next(err));
+});
+
 module.exports = router;
