@@ -44,6 +44,8 @@ router.head("/users", (req, res, next) => {
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/users", (req, res, next) => {
+  console.log("Creation d'un User");
+
   const { email, username, password, profileImg } = req.body;
   const lastReadNotif = Date.now();
 
@@ -81,7 +83,6 @@ router.post("/users", (req, res, next) => {
   Group.find({ invitedUsers: { $in: email } })
     .then((groupFromDB) => {
       console.log("groupfrom DB =", groupFromDB);
-      // console.log("group Id=", groupFromDB[0].id);
 
       if (groupFromDB.length === 0) {
         User.create({
@@ -112,11 +113,15 @@ router.post("/users", (req, res, next) => {
         });
       }
     })
-    .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
+    .catch((err) => {
+      console.log("Error", err);
+
+      next(err);
+    }); // In this case, we send error handling to the error handling middleware.
 });
 
 // POST  /auth/login - Verifies email and password and returns a JWT
-router.post("/sessions", (req, res, next) => {
+router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
 
   // Check if email or password are provided as empty string
