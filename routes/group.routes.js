@@ -23,6 +23,30 @@ router.post("/groups", (req, res, next) => {
     .catch((err) => console.log("stg went wrong while creating group", err));
 });
 
+// PUT /api/group - Add a new member in the group
+router.put("/group", (req, res, next) => {
+  const invitedUsers = req.body.emailsList;
+
+  // Créer une variable pour l'id du groupe
+  let groupId = "";
+
+  User.findById(req.payload._id)
+    .then((userFromDB) => {
+      return (groupId = userFromDB.group);
+    })
+    .then(() => {
+      return Group.findByIdAndUpdate(
+        groupId,
+        { $push: { invitedUsers: invitedUsers } },
+        { new: true }
+      );
+    })
+    .catch((err) => {
+      console.log("Error", err);
+      next(err);
+    });
+});
+
 // GET /api/group/me - Récupérer le groupe associé au user connecté
 router.get("/group/me", (req, res, next) => {
   // Récupérer l'ID de l'utilisateur authentifié depuis le token
