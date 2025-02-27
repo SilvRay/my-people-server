@@ -41,6 +41,12 @@ router.put("/group", (req, res, next) => {
         { new: true }
       );
     })
+    .then((updatedGroup) => {
+      console.log("updated group");
+      res
+        .status(200)
+        .json({ updatedGroup, message: "Groupe mis à jour avec succès" });
+    })
     .catch((err) => {
       console.log("Error", err);
       next(err);
