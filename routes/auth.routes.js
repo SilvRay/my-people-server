@@ -43,7 +43,7 @@ router.head("/users", (req, res, next) => {
 });
 
 // POST /auth/signup  - Creates a new user in the database
-router.post("/users", (req, res, next) => {
+router.post("/signup", (req, res, next) => {
   console.log("Creation d'un User");
 
   const { email, username, password, profileImg } = req.body;
