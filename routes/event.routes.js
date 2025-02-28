@@ -101,24 +101,37 @@ router.put("/events/:eventId", (req, res, next) => {
 router.put("/events/:eventId/participate", (req, res, next) => {
   const { eventId } = req.params;
   const newKids = req.body.kidsNb;
-  const participation = req.body.participation;
-  // const { userId } = req.payload;
+  const userId = req.payload._id;
 
-  console.log("newKids =", newKids);
-  console.log("participation=", participation);
+  // Récupérer l'événement pour voir si l'utilisateur participe déjà
+  Event.findById(eventId)
+    .then((eventFromDB) => {
+      if (!eventFromDB) {
+        return res
+          .status(404)
+          .json({ message: "The event hasn't been found." });
+      }
 
-  const updateParticipation = { $inc: { kids: newKids } };
-  if (participation) {
-    updateParticipation.$push = { participants: req.payload._id };
-  } else {
-    updateParticipation.$pull = { participants: req.payload._id };
-  }
+      // Vérifier si l'utilisateur participe déjà
+      const participation = eventFromDB.participants.includes(userId);
 
-  Event.findByIdAndUpdate(
-    eventId,
-    updateParticipation, //req.payload._id est l'id du user connecté qui participe à l'event
-    { new: true }
-  )
+      // Construire l'objet de MAJ
+      const updateParticipation = { $inc: { kids: newKids } };
+
+      // Vérifier si l'utilisateur participe déjà à l'évènement ou pas
+      if (!participation) {
+        updateParticipation.$push = { participants: userId }; // Retirer l'utilisateur
+      } else {
+        updateParticipation.$pull = { participants: userId }; // Ajouter l'utilisateur
+      }
+
+      // Mettre à jour l'événement
+      return Event.findByIdAndUpdate(
+        eventId,
+        updateParticipation, // userId est l'id du user connecté qui participe à l'event
+        { new: true }
+      );
+    })
     .then((updatedEvent) => {
       if (!updatedEvent) {
         return res
