@@ -31,11 +31,11 @@ router.post(
 
 // PUT /api/users Modification du profil
 router.put("/users", (req, res, next) => {
-  const { username, profileImg, birthday } = req.body;
+  const { username, profileImg } = req.body;
 
   User.findByIdAndUpdate(
     req.payload._id,
-    { username, profileImg: profileImg, birthday },
+    { username, profileImg: profileImg },
     { new: true }
   )
     .then((updatedUser) => {

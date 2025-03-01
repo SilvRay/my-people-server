@@ -19,7 +19,6 @@ const userSchema = new Schema(
       required: [true, "Password is required."],
     },
     profileImg: String,
-    birthday: Date,
     group: { type: Schema.Types.ObjectId, ref: "Group" },
     lastReadNotif: Date,
   },

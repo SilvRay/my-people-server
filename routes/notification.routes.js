@@ -70,8 +70,8 @@ router.put("/notifications", (req, res, next) => {
     { new: true }
   )
     .then((updatedUser) => {
-      // Récupérer le user mit à jour
-      res.status(200).json(updatedUser); // Renvoyer en réponse le user mit à jour
+      // Récupérer le user mis à jour
+      res.status(200).json(updatedUser); // Renvoyer en réponse le user mis à jour
     })
     .catch((err) => next(err));
 });
